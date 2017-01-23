@@ -9,8 +9,8 @@ clear all; clc;
 %numero de linhas e colunas da matriz imagem resultado para ser usada
 %depois.
 
-numberLines = 10;
-numberColumns = 10;
+numberLines = 3;
+numberColumns = 3;
 
 %emulacao das imagens a serem recebidas pelo programa.
 img1 = randn(numberLines,numberColumns);
@@ -190,14 +190,14 @@ for i=1:numberLines
 %             vec_ddleft  = [img_resul(i+1,j-1).c1,img_resul(i+1,j-1).c2,img_resul(i+1,j-1).c3,img_resul(i+1,j-1).c4,img_resul(i+1,j-1).c5]';
         
             %correlations
-            cl  = 0; %corr(vec_central,vec_left);
+            cl  = -1; %corr(vec_central,vec_left);
             cu  = corr(vec_central,vec_up);
             cr  = corr(vec_central,vec_right);
             cd  = corr(vec_central,vec_down);
             cdur= corr(vec_central,vec_duright);
             cddr= corr(vec_central,vec_ddright);
-            cdul= 0; %corr(vec_central,vec_duleft);
-            cddl=0; % corr(vec_central,vec_ddleft);
+            cdul= -1; %corr(vec_central,vec_duleft);
+            cddl= -1; % corr(vec_central,vec_ddleft);
         
             %modelo adotado: [anti horario comecando da esquerda]
             vector = [cl , cddl , cd , cddr, cr , cdur, cu, cdul];
@@ -316,12 +316,12 @@ for i=1:numberLines
         
             %correlations
             cl  = corr(vec_central,vec_left);
-            cu  =0; % corr(vec_central,vec_up);
+            cu  =-1; % corr(vec_central,vec_up);
             cr  = corr(vec_central,vec_right);
             cd  = corr(vec_central,vec_down);
-            cdur=0; % corr(vec_central,vec_duright);
+            cdur=-1; % corr(vec_central,vec_duright);
             cddr= corr(vec_central,vec_ddright);
-            cdul=0; % corr(vec_central,vec_duleft);
+            cdul=-1; % corr(vec_central,vec_duleft);
              cddl= corr(vec_central,vec_ddleft);
         
             %modelo adotado: [anti horario comecando da esquerda]
@@ -442,10 +442,10 @@ for i=1:numberLines
             %correlations
             cl  = corr(vec_central,vec_left);
             cu  = corr(vec_central,vec_up);
-            cr  =0; % corr(vec_central,vec_right);
+            cr  =-1; % corr(vec_central,vec_right);
             cd  = corr(vec_central,vec_down);
-            cdur=0; % corr(vec_central,vec_duright);
-            cddr=0; % corr(vec_central,vec_ddright);
+            cdur=-1; % corr(vec_central,vec_duright);
+            cddr=-1; % corr(vec_central,vec_ddright);
              cdul= corr(vec_central,vec_duleft);
              cddl= corr(vec_central,vec_ddleft);
         
@@ -568,11 +568,11 @@ for i=1:numberLines
             cl  = corr(vec_central,vec_left);
             cu  = corr(vec_central,vec_up);
             cr  = corr(vec_central,vec_right);
-            cd  = 0; %corr(vec_central,vec_down);
+            cd  = -1; %corr(vec_central,vec_down);
             cdur= corr(vec_central,vec_duright);
-            cddr= 0; % corr(vec_central,vec_ddright);
+            cddr= -1; % corr(vec_central,vec_ddright);
             cdul= corr(vec_central,vec_duleft);
-            cddl= 0; % corr(vec_central,vec_ddleft);
+            cddl= -1; % corr(vec_central,vec_ddleft);
         
             %modelo adotado: [anti horario comecando da esquerda]
             vector = [cl , cddl , cd , cddr, cr , cdur, cu, cdul];
@@ -691,14 +691,14 @@ for i=1:numberLines
 %             vec_ddleft  = [img_resul(i+1,j-1).c1,img_resul(i+1,j-1).c2,img_resul(i+1,j-1).c3,img_resul(i+1,j-1).c4,img_resul(i+1,j-1).c5]';
         
             %correlations
-            cl  =0; % corr(vec_central,vec_left);
-            cu  =0; % corr(vec_central,vec_up);
+            cl  =-1; % corr(vec_central,vec_left);
+            cu  =-1; % corr(vec_central,vec_up);
             cr  = corr(vec_central,vec_right);
             cd  = corr(vec_central,vec_down);
-            cdur=0; % corr(vec_central,vec_duright);
+            cdur=-1; % corr(vec_central,vec_duright);
             cddr= corr(vec_central,vec_ddright);
-            cdul=0; % corr(vec_central,vec_duleft);
-            cddl=0; % corr(vec_central,vec_ddleft);
+            cdul=-1; % corr(vec_central,vec_duleft);
+            cddl=-1; % corr(vec_central,vec_ddleft);
         
             %modelo adotado: [anti horario comecando da esquerda]
            vector = [cl , cddl , cd , cddr, cr , cdur, cu, cdul];
@@ -815,12 +815,12 @@ for i=1:numberLines
         
             %correlations
              cl  = corr(vec_central,vec_left);
-            cu  =0; % corr(vec_central,vec_up);
-            cr  =0; % corr(vec_central,vec_right);
+            cu  =-1; % corr(vec_central,vec_up);
+            cr  =-1; % corr(vec_central,vec_right);
             cd  = corr(vec_central,vec_down);
-            cdur=0; % corr(vec_central,vec_duright);
-            cddr=0; % corr(vec_central,vec_ddright);
-            cdul=0; % corr(vec_central,vec_duleft);
+            cdur=-1; % corr(vec_central,vec_duright);
+            cddr=-1; % corr(vec_central,vec_ddright);
+            cdul=-1; % corr(vec_central,vec_duleft);
              cddl= corr(vec_central,vec_ddleft);
         
             %modelo adotado: [anti horario comecando da esquerda]
@@ -939,12 +939,12 @@ for i=1:numberLines
             %correlations
             cl  = corr(vec_central,vec_left);
             cu  = corr(vec_central,vec_up);
-            cr  =0; % corr(vec_central,vec_right);
-            cd  =0; % corr(vec_central,vec_down);
-            cdur=0; % corr(vec_central,vec_duright);
-            cddr=0; % corr(vec_central,vec_ddright);
+            cr  =-1; % corr(vec_central,vec_right);
+            cd  =-1; % corr(vec_central,vec_down);
+            cdur=-1; % corr(vec_central,vec_duright);
+            cddr=-1; % corr(vec_central,vec_ddright);
             cdul= corr(vec_central,vec_duleft);
-            cddl=0; % corr(vec_central,vec_ddleft);
+            cddl=-1; % corr(vec_central,vec_ddleft);
         
             %modelo adotado: [anti horario comecando da esquerda]
             vector = [cl , cddl , cd , cddr, cr , cdur, cu, cdul];
@@ -1063,14 +1063,14 @@ for i=1:numberLines
 %              vec_ddleft  = [img_resul(i+1,j-1).c1,img_resul(i+1,j-1).c2,img_resul(i+1,j-1).c3,img_resul(i+1,j-1).c4,img_resul(i+1,j-1).c5]';
         
             %correlations
-             cl  =0; % corr(vec_central,vec_left);
+             cl  =-1; % corr(vec_central,vec_left);
              cu  = corr(vec_central,vec_up);
              cr  = corr(vec_central,vec_right);
-             cd  =0; % corr(vec_central,vec_down);
+             cd  =-1; % corr(vec_central,vec_down);
              cdur= corr(vec_central,vec_duright);
-             cddr=0; % corr(vec_central,vec_ddright);
-             cdul=0; % corr(vec_central,vec_duleft);
-             cddl=0; % corr(vec_central,vec_ddleft);
+             cddr=-1; % corr(vec_central,vec_ddright);
+             cdul=-1; % corr(vec_central,vec_duleft);
+             cddl=-1; % corr(vec_central,vec_ddleft);
         
             %modelo adotado: [anti horario comecando da esquerda]
            vector = [cl , cddl , cd , cddr, cr , cdur, cu, cdul];
@@ -1186,4 +1186,5 @@ for i=1:numberLines
         matriz(i,j) = img_resul(i,j).family;
     end
 end
+matriz
 
