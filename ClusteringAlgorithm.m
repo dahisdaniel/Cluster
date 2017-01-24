@@ -37,765 +37,171 @@ end
 Indices  = [];
 i_antigo = [];
 j_antigo = [];
-contador = 0;
 numberRepetitions= 0;
-todosOsIs = [];
-todosOsJs = [];
+debug_todosOsIs = [];
+debug_todosOsJs = [];
+contador = 0;
 
-% Implementação do algoritmo de Clustering
+%Implementação do algoritmo de Clustering
 for i=1:numberLines
     for j = 1:numberColumns
         
         i = i;
         j = j;
         numberRepetitions = numberRepetitions+1;
-        todosOsIs = [ todosOsIs i];
-        todosOsJs = [ todosOsJs j];
+        debug_todosOsIs = [ debug_todosOsIs i];
+        debug_todosOsJs = [ debug_todosOsJs j];
         i_antigo = [];
         j_antigo = [];
+    
+        newposition=1 ; %This variable determinates if the the algorithm can keep advancing towards the next most correlated
+        %position. If the next most correlated position is the position
+        %that brought to the current position, then is setted to 0.
         
-        
-        a=1 ;
-        
-        while (a==1)
-            
+        while (newposition==1)
+          
+            %Checking if the current position has already been setted with
+            %a "family" number. i.e: if img_result(i,j).family = 2 ; then
+            %skip everything and go to the next loop
             if (img_resul(i,j).family == -1)
-            %caso geral: nao estar na "borda" e com isso poder comparar com
-            %toda vizinhança.
+              
+                %Dentro do plano (nem na primeira ou ultima linha e coluna)
                 if (i-1 >= 1) && ( i+1 <= numberLines ) && (j-1 >= 1) && ( j+1 <= numberColumns )
 
-
-                    vec_central = [img_resul(i,j).c1,img_resul(i,j).c2,img_resul(i,j).c3,img_resul(i,j).c4,img_resul(i,j).c5]';
-                    vec_left    = [img_resul(i,j-1).c1,img_resul(i,j-1).c2,img_resul(i,j-1).c3,img_resul(i,j-1).c4,img_resul(i,j-1).c5]';
-                    vec_up      = [img_resul(i-1,j).c1,img_resul(i-1,j).c2,img_resul(i-1,j).c3,img_resul(i-1,j).c4,img_resul(i-1,j).c5]';
-                    vec_right   = [img_resul(i,j+1).c1,img_resul(i,j+1).c2,img_resul(i,j+1).c3,img_resul(i,j+1).c4,img_resul(i,j+1).c5]';
-                    vec_down    = [img_resul(i+1,j).c1,img_resul(i+1,j).c2,img_resul(i+1,j).c3,img_resul(i+1,j).c4,img_resul(i+1,j).c5]';
-                    vec_duright = [img_resul(i-1,j+1).c1,img_resul(i-1,j+1).c2,img_resul(i-1,j+1).c3,img_resul(i-1,j+1).c4,img_resul(i-1,j+1).c5]';
-                    vec_ddright = [img_resul(i+1,j+1).c1,img_resul(i+1,j+1).c2,img_resul(i+1,j+1).c3,img_resul(i+1,j+1).c4,img_resul(i+1,j+1).c5]';
-                    vec_duleft  = [img_resul(i-1,j-1).c1,img_resul(i-1,j-1).c2,img_resul(i-1,j-1).c3,img_resul(i-1,j-1).c4,img_resul(i-1,j-1).c5]';
-                    vec_ddleft  = [img_resul(i+1,j-1).c1,img_resul(i+1,j-1).c2,img_resul(i+1,j-1).c3,img_resul(i+1,j-1).c4,img_resul(i+1,j-1).c5]';
-
-                    %correlations
-                    cl  = corr(vec_central,vec_left);
-                    cu  = corr(vec_central,vec_up);
-                    cr  = corr(vec_central,vec_right);
-                    cd  = corr(vec_central,vec_down);
-                    cdur= corr(vec_central,vec_duright);
-                    cddr= corr(vec_central,vec_ddright);
-                    cdul= corr(vec_central,vec_duleft);
-                    cddl= corr(vec_central,vec_ddleft);
-
-                    %modelo adotado: [anti horario comecando da esquerda]
-                    vector = [cl , cddl , cd , cddr, cr , cdur, cu, cdul];
+                    vector = ComputeVectors(i,j,img_resul,numberLines,numberColumns);
                     vectorN = {'cl' , 'cddl' , 'cd' , 'cddr', 'cr' , 'cdur', 'cu', 'cdul'};
                     [val idx] = max(vector);
                     img_resul(i,j).family = numberRepetitions;
 
-                    %Apontando para o proximo que deve-se
-                    %ir:
+                    %Apontando para o proximo que deve-se ir:
                     contador = contador + 1;
                     i_antigo=[i_antigo i];
                     j_antigo = [j_antigo j];
+                    
+                    nextPosition = PointingNextPlace(i,j,i_antigo,j_antigo,vectorN,idx,newposition);
+                    i= nextPosition(1);
+                    j=nextPosition(2);
+                    newposition=nextPosition(3);
 
-                    %             nextVector(vectorN, idx , i, j ,i_antigo, j_antigo, a);
-
-                    if strcmp(vectorN(idx),'cl')
-                        i = i;
-                        j = j-1;
-                        if (numel(i_antigo)>1) && (i == i_antigo(numel(i_antigo)-1)) && (j ==j_antigo(numel(j_antigo)-1))
-                            a=0;
-                        end
-
-                    elseif strcmp(vectorN(idx),'cddl')
-                        i = i+1;
-                        j = j-1;
-                        if (numel(i_antigo)>1) &&(i == i_antigo(numel(i_antigo)-1)) && (j ==j_antigo(numel(j_antigo)-1))
-                            a=0;
-                        end
-
-                    elseif strcmp(vectorN(idx),'cd')
-                        i = i+1;
-                        j = j;
-                        if (numel(i_antigo)>1) &&(i == i_antigo(numel(i_antigo)-1)) && (j ==j_antigo(numel(j_antigo)-1))
-                            a=0;
-                        end
-
-                    elseif strcmp(vectorN(idx),'cddr')
-                        i = i+1;
-                        j = j+1;
-                        if (numel(i_antigo)>1) &&(i == i_antigo(numel(i_antigo)-1)) && (j ==j_antigo(numel(j_antigo)-1))
-                            a=0;
-                        end
-
-                    elseif strcmp(vectorN(idx),'cr')
-                        i = i;
-                        j = j+1;
-                        if (numel(i_antigo)>1) &&(i == i_antigo(numel(i_antigo)-1)) && (j ==j_antigo(numel(j_antigo)-1))
-                            a=0;
-                        end
-
-                    elseif strcmp(vectorN(idx),'cdur')
-                        i = i-1;
-                        j = j+1;
-                        if (numel(i_antigo)>1) &&(i == i_antigo(numel(i_antigo)-1)) && (j ==j_antigo(numel(j_antigo)-1))
-                            a=0;
-                        end
-
-                    elseif strcmp(vectorN(idx),'cu')
-                        i = i-1;
-                        j = j;
-                        if (numel(i_antigo)>1) &&(i == i_antigo(numel(i_antigo)-1)) && (j ==j_antigo(numel(j_antigo)-1))
-                            a=0;
-                        end
-
-                    else strcmp(vectorN(idx),'cdul')
-                        i = i-1;
-                        j = j-1;
-                        if (numel(i_antigo)>1) &&(i == i_antigo(numel(i_antigo)-1)) && (j ==j_antigo(numel(j_antigo)-1))
-                            a=0;
-                        end
-                    end
-
-
-
-
-
-                    %caso de estar nas extremidades do "tabuleiro"
-                    %tratamento caso esteja na esquerda e nao seja quina.
+                    
+                %Primeira Coluna e nao seja quina.
                 elseif (i-1 >= 1) && (i<numberLines) && (j==1)
 
-
-                    vec_central = [img_resul(i,j).c1,img_resul(i,j).c2,img_resul(i,j).c3,img_resul(i,j).c4,img_resul(i,j).c5]';
-                    %             vec_left    = [img_resul(i,j-1).c1,img_resul(i,j-1).c2,img_resul(i,j-1).c3,img_resul(i,j-1).c4,img_resul(i,j-1).c5]';
-                    vec_up      = [img_resul(i-1,j).c1,img_resul(i-1,j).c2,img_resul(i-1,j).c3,img_resul(i-1,j).c4,img_resul(i-1,j).c5]';
-                    vec_right   = [img_resul(i,j+1).c1,img_resul(i,j+1).c2,img_resul(i,j+1).c3,img_resul(i,j+1).c4,img_resul(i,j+1).c5]';
-                    vec_down    = [img_resul(i+1,j).c1,img_resul(i+1,j).c2,img_resul(i+1,j).c3,img_resul(i+1,j).c4,img_resul(i+1,j).c5]';
-                    vec_duright = [img_resul(i-1,j+1).c1,img_resul(i-1,j+1).c2,img_resul(i-1,j+1).c3,img_resul(i-1,j+1).c4,img_resul(i-1,j+1).c5]';
-                    vec_ddright = [img_resul(i+1,j+1).c1,img_resul(i+1,j+1).c2,img_resul(i+1,j+1).c3,img_resul(i+1,j+1).c4,img_resul(i+1,j+1).c5]';
-                    %             vec_duleft  = [img_resul(i-1,j-1).c1,img_resul(i-1,j-1).c2,img_resul(i-1,j-1).c3,img_resul(i-1,j-1).c4,img_resul(i-1,j-1).c5]';
-                    %             vec_ddleft  = [img_resul(i+1,j-1).c1,img_resul(i+1,j-1).c2,img_resul(i+1,j-1).c3,img_resul(i+1,j-1).c4,img_resul(i+1,j-1).c5]';
-
-                    %correlations
-                    cl  = -1; %corr(vec_central,vec_left);
-                    cu  = corr(vec_central,vec_up);
-                    cr  = corr(vec_central,vec_right);
-                    cd  = corr(vec_central,vec_down);
-                    cdur= corr(vec_central,vec_duright);
-                    cddr= corr(vec_central,vec_ddright);
-                    cdul= -1; %corr(vec_central,vec_duleft);
-                    cddl= -1; % corr(vec_central,vec_ddleft);
-
-                    %modelo adotado: [anti horario comecando da esquerda]
-                    vector = [cl , cddl , cd , cddr, cr , cdur, cu, cdul];
+                    vector = ComputeVectors(i,j,img_resul,numberLines,numberColumns);
                     vectorN = {'cl' , 'cddl' , 'cd' , 'cddr', 'cr' , 'cdur', 'cu', 'cdul'};
                     [val idx] = max(vector);
                     img_resul(i,j).family = numberRepetitions;
 
-                    %Apontando para o proximo que deve-se
-                    %ir:
+                    %Apontando para o proximo que deve-se ir:
                     contador = contador + 1;
                     i_antigo=[i_antigo i];
                     j_antigo = [j_antigo j];
 
-
-                   if strcmp(vectorN(idx),'cl')
-                        i = i;
-                        j = j-1;
-                        if (numel(i_antigo)>1) && (i == i_antigo(numel(i_antigo)-1)) && (j ==j_antigo(numel(j_antigo)-1))
-                            a=0;
-                        end
-
-                    elseif strcmp(vectorN(idx),'cddl')
-                        i = i+1;
-                        j = j-1;
-                        if (numel(i_antigo)>1) &&(i == i_antigo(numel(i_antigo)-1)) && (j ==j_antigo(numel(j_antigo)-1))
-                            a=0;
-                        end
-
-                    elseif strcmp(vectorN(idx),'cd')
-                        i = i+1;
-                        j = j;
-                        if (numel(i_antigo)>1) &&(i == i_antigo(numel(i_antigo)-1)) && (j ==j_antigo(numel(j_antigo)-1))
-                            a=0;
-                        end
-
-                    elseif strcmp(vectorN(idx),'cddr')
-                        i = i+1;
-                        j = j+1;
-                        if (numel(i_antigo)>1) &&(i == i_antigo(numel(i_antigo)-1)) && (j ==j_antigo(numel(j_antigo)-1))
-                            a=0;
-                        end
-
-                    elseif strcmp(vectorN(idx),'cr')
-                        i = i;
-                        j = j+1;
-                        if (numel(i_antigo)>1) &&(i == i_antigo(numel(i_antigo)-1)) && (j ==j_antigo(numel(j_antigo)-1))
-                            a=0;
-                        end
-
-                    elseif strcmp(vectorN(idx),'cdur')
-                        i = i-1;
-                        j = j+1;
-                        if (numel(i_antigo)>1) &&(i == i_antigo(numel(i_antigo)-1)) && (j ==j_antigo(numel(j_antigo)-1))
-                            a=0;
-                        end
-
-                    elseif strcmp(vectorN(idx),'cu')
-                        i = i-1;
-                        j = j;
-                        if (numel(i_antigo)>1) &&(i == i_antigo(numel(i_antigo)-1)) && (j ==j_antigo(numel(j_antigo)-1))
-                            a=0;
-                        end
-
-                    else strcmp(vectorN(idx),'cdul')
-                        i = i-1;
-                        j = j-1;
-                        if (numel(i_antigo)>1) &&(i == i_antigo(numel(i_antigo)-1)) && (j ==j_antigo(numel(j_antigo)-1))
-                            a=0;
-                        end
-                    end
+                    nextPosition = PointingNextPlace(i,j,i_antigo,j_antigo,vectorN,idx,newposition);
+                    i= nextPosition(1);
+                    j=nextPosition(2);
+                    newposition=nextPosition(3);
 
 
-
-
-
-
-
-
-                    %caso de estar nas extremidades do "tabuleiro"
-                    %tratamento caso esteja no topo  e nao seja quina.
+                %Topo  e nao seja quina.
                 elseif (i== 1)  && (j-1>=1) && (j+1 <= numberColumns)
 
-
-                    vec_central = [img_resul(i,j).c1,img_resul(i,j).c2,img_resul(i,j).c3,img_resul(i,j).c4,img_resul(i,j).c5]';
-                    vec_left    = [img_resul(i,j-1).c1,img_resul(i,j-1).c2,img_resul(i,j-1).c3,img_resul(i,j-1).c4,img_resul(i,j-1).c5]';
-                    %             vec_up      = [img_resul(i-1,j).c1,img_resul(i-1,j).c2,img_resul(i-1,j).c3,img_resul(i-1,j).c4,img_resul(i-1,j).c5]';
-                    vec_right   = [img_resul(i,j+1).c1,img_resul(i,j+1).c2,img_resul(i,j+1).c3,img_resul(i,j+1).c4,img_resul(i,j+1).c5]';
-                    vec_down    = [img_resul(i+1,j).c1,img_resul(i+1,j).c2,img_resul(i+1,j).c3,img_resul(i+1,j).c4,img_resul(i+1,j).c5]';
-                    %             vec_duright = [img_resul(i-1,j+1).c1,img_resul(i-1,j+1).c2,img_resul(i-1,j+1).c3,img_resul(i-1,j+1).c4,img_resul(i-1,j+1).c5]';
-                    vec_ddright = [img_resul(i+1,j+1).c1,img_resul(i+1,j+1).c2,img_resul(i+1,j+1).c3,img_resul(i+1,j+1).c4,img_resul(i+1,j+1).c5]';
-                    %             vec_duleft  = [img_resul(i-1,j-1).c1,img_resul(i-1,j-1).c2,img_resul(i-1,j-1).c3,img_resul(i-1,j-1).c4,img_resul(i-1,j-1).c5]';
-                    vec_ddleft  = [img_resul(i+1,j-1).c1,img_resul(i+1,j-1).c2,img_resul(i+1,j-1).c3,img_resul(i+1,j-1).c4,img_resul(i+1,j-1).c5]';
-
-                    %correlations
-                    cl  = corr(vec_central,vec_left);
-                    cu  =-1; % corr(vec_central,vec_up);
-                    cr  = corr(vec_central,vec_right);
-                    cd  = corr(vec_central,vec_down);
-                    cdur=-1; % corr(vec_central,vec_duright);
-                    cddr= corr(vec_central,vec_ddright);
-                    cdul=-1; % corr(vec_central,vec_duleft);
-                    cddl= corr(vec_central,vec_ddleft);
-
-                    %modelo adotado: [anti horario comecando da esquerda]
-                    vector = [cl , cddl , cd , cddr, cr , cdur, cu, cdul];
+                    vector = ComputeVectors(i,j,img_resul,numberLines,numberColumns);
                     vectorN = {'cl' , 'cddl' , 'cd' , 'cddr', 'cr' , 'cdur', 'cu', 'cdul'};
                     [val idx] = max(vector);
                     img_resul(i,j).family =numberRepetitions ;
 
-                    %Apontando para o proximo que deve-se
-                    %ir:
+                    %Apontando para o proximo que deve-se ir:
                     contador = contador + 1;
                     i_antigo=[i_antigo i];
                     j_antigo = [j_antigo j];
 
+                    nextPosition = PointingNextPlace(i,j,i_antigo,j_antigo,vectorN,idx,newposition);
+                    i= nextPosition(1);
+                    j=nextPosition(2);
+                    newposition=nextPosition(3);
 
-                    if strcmp(vectorN(idx),'cl')
-                        i = i;
-                        j = j-1;
-                        if (numel(i_antigo)>1) && (i == i_antigo(numel(i_antigo)-1)) && (j ==j_antigo(numel(j_antigo)-1))
-                            a=0;
-                        end
-
-                    elseif strcmp(vectorN(idx),'cddl')
-                        i = i+1;
-                        j = j-1;
-                        if (numel(i_antigo)>1) &&(i == i_antigo(numel(i_antigo)-1)) && (j ==j_antigo(numel(j_antigo)-1))
-                            a=0;
-                        end
-
-                    elseif strcmp(vectorN(idx),'cd')
-                        i = i+1;
-                        j = j;
-                        if (numel(i_antigo)>1) &&(i == i_antigo(numel(i_antigo)-1)) && (j ==j_antigo(numel(j_antigo)-1))
-                            a=0;
-                        end
-
-                    elseif strcmp(vectorN(idx),'cddr')
-                        i = i+1;
-                        j = j+1;
-                        if (numel(i_antigo)>1) &&(i == i_antigo(numel(i_antigo)-1)) && (j ==j_antigo(numel(j_antigo)-1))
-                            a=0;
-                        end
-
-                    elseif strcmp(vectorN(idx),'cr')
-                        i = i;
-                        j = j+1;
-                        if (numel(i_antigo)>1) &&(i == i_antigo(numel(i_antigo)-1)) && (j ==j_antigo(numel(j_antigo)-1))
-                            a=0;
-                        end
-
-                    elseif strcmp(vectorN(idx),'cdur')
-                        i = i-1;
-                        j = j+1;
-                        if (numel(i_antigo)>1) &&(i == i_antigo(numel(i_antigo)-1)) && (j ==j_antigo(numel(j_antigo)-1))
-                            a=0;
-                        end
-
-                    elseif strcmp(vectorN(idx),'cu')
-                        i = i-1;
-                        j = j;
-                        if (numel(i_antigo)>1) &&(i == i_antigo(numel(i_antigo)-1)) && (j ==j_antigo(numel(j_antigo)-1))
-                            a=0;
-                        end
-
-                    else strcmp(vectorN(idx),'cdul')
-                        i = i-1;
-                        j = j-1;
-                        if (numel(i_antigo)>1) &&(i == i_antigo(numel(i_antigo)-1)) && (j ==j_antigo(numel(j_antigo)-1))
-                            a=0;
-                        end
-                    end
-
-
-
-
-
-
-
-
-                    %caso de estar nas extremidades do "tabuleiro"
-                    %tratamento caso esteja na direita  e nao seja quina.
+                    
+                %Ultima Coluna nao seja quina.
                 elseif (i>= 2) && (i< numberLines) && (j== numberColumns)
 
-
-                    vec_central = [img_resul(i,j).c1,img_resul(i,j).c2,img_resul(i,j).c3,img_resul(i,j).c4,img_resul(i,j).c5]';
-                    vec_left    = [img_resul(i,j-1).c1,img_resul(i,j-1).c2,img_resul(i,j-1).c3,img_resul(i,j-1).c4,img_resul(i,j-1).c5]';
-                    vec_up      = [img_resul(i-1,j).c1,img_resul(i-1,j).c2,img_resul(i-1,j).c3,img_resul(i-1,j).c4,img_resul(i-1,j).c5]';
-                    %             vec_right   = [img_resul(i,j+1).c1,img_resul(i,j+1).c2,img_resul(i,j+1).c3,img_resul(i,j+1).c4,img_resul(i,j+1).c5]';
-                    vec_down    = [img_resul(i+1,j).c1,img_resul(i+1,j).c2,img_resul(i+1,j).c3,img_resul(i+1,j).c4,img_resul(i+1,j).c5]';
-                    %             vec_duright = [img_resul(i-1,j+1).c1,img_resul(i-1,j+1).c2,img_resul(i-1,j+1).c3,img_resul(i-1,j+1).c4,img_resul(i-1,j+1).c5]';
-                    %             vec_ddright = [img_resul(i+1,j+1).c1,img_resul(i+1,j+1).c2,img_resul(i+1,j+1).c3,img_resul(i+1,j+1).c4,img_resul(i+1,j+1).c5]';
-                    vec_duleft  = [img_resul(i-1,j-1).c1,img_resul(i-1,j-1).c2,img_resul(i-1,j-1).c3,img_resul(i-1,j-1).c4,img_resul(i-1,j-1).c5]';
-                    vec_ddleft  = [img_resul(i+1,j-1).c1,img_resul(i+1,j-1).c2,img_resul(i+1,j-1).c3,img_resul(i+1,j-1).c4,img_resul(i+1,j-1).c5]';
-
-                    %correlations
-                    cl  = corr(vec_central,vec_left);
-                    cu  = corr(vec_central,vec_up);
-                    cr  =-1; % corr(vec_central,vec_right);
-                    cd  = corr(vec_central,vec_down);
-                    cdur=-1; % corr(vec_central,vec_duright);
-                    cddr=-1; % corr(vec_central,vec_ddright);
-                    cdul= corr(vec_central,vec_duleft);
-                    cddl= corr(vec_central,vec_ddleft);
-
-                    %modelo adotado: [anti horario comecando da esquerda]
-                    vector = [cl , cddl , cd , cddr, cr , cdur, cu, cdul];
+                    vector = ComputeVectors(i,j,img_resul,numberLines,numberColumns);
                     vectorN = {'cl' , 'cddl' , 'cd' , 'cddr', 'cr' , 'cdur', 'cu', 'cdul'};
                     [val idx] = max(vector);
                     img_resul(i,j).family = numberRepetitions;
 
-                    %Apontando para o proximo que deve-se
-                    %ir:
+                    %Apontando para o proximo que deve-se ir:
                     contador = contador + 1;
                     i_antigo=[i_antigo i];
                     j_antigo = [j_antigo j];
 
-
-                    if strcmp(vectorN(idx),'cl')
-                        i = i;
-                        j = j-1;
-                        if (numel(i_antigo)>1) && (i == i_antigo(numel(i_antigo)-1)) && (j ==j_antigo(numel(j_antigo)-1))
-                            a=0;
-                        end
-
-                    elseif strcmp(vectorN(idx),'cddl')
-                        i = i+1;
-                        j = j-1;
-                        if (numel(i_antigo)>1) &&(i == i_antigo(numel(i_antigo)-1)) && (j ==j_antigo(numel(j_antigo)-1))
-                            a=0;
-                        end
-
-                    elseif strcmp(vectorN(idx),'cd')
-                        i = i+1;
-                        j = j;
-                        if (numel(i_antigo)>1) &&(i == i_antigo(numel(i_antigo)-1)) && (j ==j_antigo(numel(j_antigo)-1))
-                            a=0;
-                        end
-
-                    elseif strcmp(vectorN(idx),'cddr')
-                        i = i+1;
-                        j = j+1;
-                        if (numel(i_antigo)>1) &&(i == i_antigo(numel(i_antigo)-1)) && (j ==j_antigo(numel(j_antigo)-1))
-                            a=0;
-                        end
-
-                    elseif strcmp(vectorN(idx),'cr')
-                        i = i;
-                        j = j+1;
-                        if (numel(i_antigo)>1) &&(i == i_antigo(numel(i_antigo)-1)) && (j ==j_antigo(numel(j_antigo)-1))
-                            a=0;
-                        end
-
-                    elseif strcmp(vectorN(idx),'cdur')
-                        i = i-1;
-                        j = j+1;
-                        if (numel(i_antigo)>1) &&(i == i_antigo(numel(i_antigo)-1)) && (j ==j_antigo(numel(j_antigo)-1))
-                            a=0;
-                        end
-
-                    elseif strcmp(vectorN(idx),'cu')
-                        i = i-1;
-                        j = j;
-                        if (numel(i_antigo)>1) &&(i == i_antigo(numel(i_antigo)-1)) && (j ==j_antigo(numel(j_antigo)-1))
-                            a=0;
-                        end
-
-                    else strcmp(vectorN(idx),'cdul')
-                        i = i-1;
-                        j = j-1;
-                        if (numel(i_antigo)>1) &&(i == i_antigo(numel(i_antigo)-1)) && (j ==j_antigo(numel(j_antigo)-1))
-                            a=0;
-                        end
-                    end
+                    nextPosition = PointingNextPlace(i,j,i_antigo,j_antigo,vectorN,idx,newposition);
+                    i= nextPosition(1);
+                    j=nextPosition(2);
+                    newposition=nextPosition(3);
 
 
-
-
-
-
-
-
-                    %caso de estar nas extremidades do "tabuleiro"
-                    %tratamento caso esteja embaixo  e nao seja quina.
+                %Ultima Linha e nao seja quina.
                 elseif (i == numberLines)  && (j-1>=1) && (j < numberColumns)
 
-
-                    vec_central = [img_resul(i,j).c1,img_resul(i,j).c2,img_resul(i,j).c3,img_resul(i,j).c4,img_resul(i,j).c5]';
-                    vec_left    = [img_resul(i,j-1).c1,img_resul(i,j-1).c2,img_resul(i,j-1).c3,img_resul(i,j-1).c4,img_resul(i,j-1).c5]';
-                    vec_up      = [img_resul(i-1,j).c1,img_resul(i-1,j).c2,img_resul(i-1,j).c3,img_resul(i-1,j).c4,img_resul(i-1,j).c5]';
-                    vec_right   = [img_resul(i,j+1).c1,img_resul(i,j+1).c2,img_resul(i,j+1).c3,img_resul(i,j+1).c4,img_resul(i,j+1).c5]';
-                    %             vec_down    = [img_resul(i+1,j).c1,img_resul(i+1,j).c2,img_resul(i+1,j).c3,img_resul(i+1,j).c4,img_resul(i+1,j).c5]';
-                    vec_duright = [img_resul(i-1,j+1).c1,img_resul(i-1,j+1).c2,img_resul(i-1,j+1).c3,img_resul(i-1,j+1).c4,img_resul(i-1,j+1).c5]';
-                    %             vec_ddright = [img_resul(i+1,j+1).c1,img_resul(i+1,j+1).c2,img_resul(i+1,j+1).c3,img_resul(i+1,j+1).c4,img_resul(i+1,j+1).c5]';
-                    vec_duleft  = [img_resul(i-1,j-1).c1,img_resul(i-1,j-1).c2,img_resul(i-1,j-1).c3,img_resul(i-1,j-1).c4,img_resul(i-1,j-1).c5]';
-                    %             vec_ddleft  = [img_resul(i+1,j-1).c1,img_resul(i+1,j-1).c2,img_resul(i+1,j-1).c3,img_resul(i+1,j-1).c4,img_resul(i+1,j-1).c5]';
-
-                    %correlations
-                    cl  = corr(vec_central,vec_left);
-                    cu  = corr(vec_central,vec_up);
-                    cr  = corr(vec_central,vec_right);
-                    cd  = -1; %corr(vec_central,vec_down);
-                    cdur= corr(vec_central,vec_duright);
-                    cddr= -1; % corr(vec_central,vec_ddright);
-                    cdul= corr(vec_central,vec_duleft);
-                    cddl= -1; % corr(vec_central,vec_ddleft);
-
                     %modelo adotado: [anti horario comecando da esquerda]
-                    vector = [cl , cddl , cd , cddr, cr , cdur, cu, cdul];
+                    vector = ComputeVectors(i,j,img_resul,numberLines,numberColumns);
                     vectorN = {'cl' , 'cddl' , 'cd' , 'cddr', 'cr' , 'cdur', 'cu', 'cdul'};
                     [val idx] = max(vector);
                     img_resul(i,j).family = numberRepetitions;
 
-                    %Apontando para o proximo que deve-se
-                    %ir:
+                    %Apontando para o proximo que deve-se ir:
                     contador = contador + 1;
                     i_antigo=[i_antigo i];
                     j_antigo = [j_antigo j];
 
+                    nextPosition = PointingNextPlace(i,j,i_antigo,j_antigo,vectorN,idx,newposition);
+                    i= nextPosition(1);
+                    j=nextPosition(2);
+                    newposition=nextPosition(3);
 
-                   if strcmp(vectorN(idx),'cl')
-                        i = i;
-                        j = j-1;
-                        if (numel(i_antigo)>1) && (i == i_antigo(numel(i_antigo)-1)) && (j ==j_antigo(numel(j_antigo)-1))
-                            a=0;
-                        end
-
-                    elseif strcmp(vectorN(idx),'cddl')
-                        i = i+1;
-                        j = j-1;
-                        if (numel(i_antigo)>1) &&(i == i_antigo(numel(i_antigo)-1)) && (j ==j_antigo(numel(j_antigo)-1))
-                            a=0;
-                        end
-
-                    elseif strcmp(vectorN(idx),'cd')
-                        i = i+1;
-                        j = j;
-                        if (numel(i_antigo)>1) &&(i == i_antigo(numel(i_antigo)-1)) && (j ==j_antigo(numel(j_antigo)-1))
-                            a=0;
-                        end
-
-                    elseif strcmp(vectorN(idx),'cddr')
-                        i = i+1;
-                        j = j+1;
-                        if (numel(i_antigo)>1) &&(i == i_antigo(numel(i_antigo)-1)) && (j ==j_antigo(numel(j_antigo)-1))
-                            a=0;
-                        end
-
-                    elseif strcmp(vectorN(idx),'cr')
-                        i = i;
-                        j = j+1;
-                        if (numel(i_antigo)>1) &&(i == i_antigo(numel(i_antigo)-1)) && (j ==j_antigo(numel(j_antigo)-1))
-                            a=0;
-                        end
-
-                    elseif strcmp(vectorN(idx),'cdur')
-                        i = i-1;
-                        j = j+1;
-                        if (numel(i_antigo)>1) &&(i == i_antigo(numel(i_antigo)-1)) && (j ==j_antigo(numel(j_antigo)-1))
-                            a=0;
-                        end
-
-                    elseif strcmp(vectorN(idx),'cu')
-                        i = i-1;
-                        j = j;
-                        if (numel(i_antigo)>1) &&(i == i_antigo(numel(i_antigo)-1)) && (j ==j_antigo(numel(j_antigo)-1))
-                            a=0;
-                        end
-
-                    else strcmp(vectorN(idx),'cdul')
-                        i = i-1;
-                        j = j-1;
-                        if (numel(i_antigo)>1) &&(i == i_antigo(numel(i_antigo)-1)) && (j ==j_antigo(numel(j_antigo)-1))
-                            a=0;
-                        end
-                    end
-
-
-
-
-
-
-
-
-
-                    %caso de estar nas extremidades do "tabuleiro"
-                    %tratamento caso esteja no topo  e seja quina esquerda.
+                %Topo  e seja quina esquerda.
                 elseif (i== 1) && (j==1)
 
-
-                    vec_central = [img_resul(i,j).c1,img_resul(i,j).c2,img_resul(i,j).c3,img_resul(i,j).c4,img_resul(i,j).c5]';
-                    %             vec_left    = [img_resul(i,j-1).c1,img_resul(i,j-1).c2,img_resul(i,j-1).c3,img_resul(i,j-1).c4,img_resul(i,j-1).c5]';
-                    %              vec_up      = [img_resul(i-1,j).c1,img_resul(i-1,j).c2,img_resul(i-1,j).c3,img_resul(i-1,j).c4,img_resul(i-1,j).c5]';
-                    vec_right   = [img_resul(i,j+1).c1,img_resul(i,j+1).c2,img_resul(i,j+1).c3,img_resul(i,j+1).c4,img_resul(i,j+1).c5]';
-                    vec_down    = [img_resul(i+1,j).c1,img_resul(i+1,j).c2,img_resul(i+1,j).c3,img_resul(i+1,j).c4,img_resul(i+1,j).c5]';
-                    %             vec_duright = [img_resul(i-1,j+1).c1,img_resul(i-1,j+1).c2,img_resul(i-1,j+1).c3,img_resul(i-1,j+1).c4,img_resul(i-1,j+1).c5]';
-                    vec_ddright = [img_resul(i+1,j+1).c1,img_resul(i+1,j+1).c2,img_resul(i+1,j+1).c3,img_resul(i+1,j+1).c4,img_resul(i+1,j+1).c5]';
-                    %             vec_duleft  = [img_resul(i-1,j-1).c1,img_resul(i-1,j-1).c2,img_resul(i-1,j-1).c3,img_resul(i-1,j-1).c4,img_resul(i-1,j-1).c5]';
-                    %             vec_ddleft  = [img_resul(i+1,j-1).c1,img_resul(i+1,j-1).c2,img_resul(i+1,j-1).c3,img_resul(i+1,j-1).c4,img_resul(i+1,j-1).c5]';
-
-                    %correlations
-                    cl  =-1; % corr(vec_central,vec_left);
-                    cu  =-1; % corr(vec_central,vec_up);
-                    cr  = corr(vec_central,vec_right);
-                    cd  = corr(vec_central,vec_down);
-                    cdur=-1; % corr(vec_central,vec_duright);
-                    cddr= corr(vec_central,vec_ddright);
-                    cdul=-1; % corr(vec_central,vec_duleft);
-                    cddl=-1; % corr(vec_central,vec_ddleft);
-
-                    %modelo adotado: [anti horario comecando da esquerda]
-                    vector = [cl , cddl , cd , cddr, cr , cdur, cu, cdul];
+                    vector = ComputeVectors(i,j,img_resul,numberLines,numberColumns);
                     vectorN = {'cl' , 'cddl' , 'cd' , 'cddr', 'cr' , 'cdur', 'cu', 'cdul'};
                     [val idx] = max(vector);
                     img_resul(i,j).family = numberRepetitions;
 
-                    %Apontando para o proximo que deve-se
-                    %ir:
+                    %Apontando para o proximo que deve-se ir:
                     contador = contador + 1;
                     i_antigo=[i_antigo i];
                     j_antigo = [j_antigo j];
 
+                    nextPosition = PointingNextPlace(i,j,i_antigo,j_antigo,vectorN,idx,newposition);
+                    i= nextPosition(1);
+                    j=nextPosition(2);
+                    newposition=nextPosition(3);
 
-                   if strcmp(vectorN(idx),'cl')
-                        i = i;
-                        j = j-1;
-                        if (numel(i_antigo)>1) && (i == i_antigo(numel(i_antigo)-1)) && (j ==j_antigo(numel(j_antigo)-1))
-                            a=0;
-                        end
-
-                    elseif strcmp(vectorN(idx),'cddl')
-                        i = i+1;
-                        j = j-1;
-                        if (numel(i_antigo)>1) &&(i == i_antigo(numel(i_antigo)-1)) && (j ==j_antigo(numel(j_antigo)-1))
-                            a=0;
-                        end
-
-                    elseif strcmp(vectorN(idx),'cd')
-                        i = i+1;
-                        j = j;
-                        if (numel(i_antigo)>1) &&(i == i_antigo(numel(i_antigo)-1)) && (j ==j_antigo(numel(j_antigo)-1))
-                            a=0;
-                        end
-
-                    elseif strcmp(vectorN(idx),'cddr')
-                        i = i+1;
-                        j = j+1;
-                        if (numel(i_antigo)>1) &&(i == i_antigo(numel(i_antigo)-1)) && (j ==j_antigo(numel(j_antigo)-1))
-                            a=0;
-                        end
-
-                    elseif strcmp(vectorN(idx),'cr')
-                        i = i;
-                        j = j+1;
-                        if (numel(i_antigo)>1) &&(i == i_antigo(numel(i_antigo)-1)) && (j ==j_antigo(numel(j_antigo)-1))
-                            a=0;
-                        end
-
-                    elseif strcmp(vectorN(idx),'cdur')
-                        i = i-1;
-                        j = j+1;
-                        if (numel(i_antigo)>1) &&(i == i_antigo(numel(i_antigo)-1)) && (j ==j_antigo(numel(j_antigo)-1))
-                            a=0;
-                        end
-
-                    elseif strcmp(vectorN(idx),'cu')
-                        i = i-1;
-                        j = j;
-                        if (numel(i_antigo)>1) &&(i == i_antigo(numel(i_antigo)-1)) && (j ==j_antigo(numel(j_antigo)-1))
-                            a=0;
-                        end
-
-                    else strcmp(vectorN(idx),'cdul')
-                        i = i-1;
-                        j = j-1;
-                        if (numel(i_antigo)>1) &&(i == i_antigo(numel(i_antigo)-1)) && (j ==j_antigo(numel(j_antigo)-1))
-                            a=0;
-                        end
-                    end
-
-
-
-
-
-
-
-                    %quina superior direita
+                %Quina superior direita
                 elseif (i== 1) && (j==numberColumns)
 
-
-                    vec_central = [img_resul(i,j).c1,img_resul(i,j).c2,img_resul(i,j).c3,img_resul(i,j).c4,img_resul(i,j).c5]';
-                    vec_left    = [img_resul(i,j-1).c1,img_resul(i,j-1).c2,img_resul(i,j-1).c3,img_resul(i,j-1).c4,img_resul(i,j-1).c5]';
-                    %              vec_up      = [img_resul(i-1,j).c1,img_resul(i-1,j).c2,img_resul(i-1,j).c3,img_resul(i-1,j).c4,img_resul(i-1,j).c5]';
-                    %             vec_right   = [img_resul(i,j+1).c1,img_resul(i,j+1).c2,img_resul(i,j+1).c3,img_resul(i,j+1).c4,img_resul(i,j+1).c5]';
-                    vec_down    = [img_resul(i+1,j).c1,img_resul(i+1,j).c2,img_resul(i+1,j).c3,img_resul(i+1,j).c4,img_resul(i+1,j).c5]';
-                    %             vec_duright = [img_resul(i-1,j+1).c1,img_resul(i-1,j+1).c2,img_resul(i-1,j+1).c3,img_resul(i-1,j+1).c4,img_resul(i-1,j+1).c5]';
-                    %             vec_ddright = [img_resul(i+1,j+1).c1,img_resul(i+1,j+1).c2,img_resul(i+1,j+1).c3,img_resul(i+1,j+1).c4,img_resul(i+1,j+1).c5]';
-                    %             vec_duleft  = [img_resul(i-1,j-1).c1,img_resul(i-1,j-1).c2,img_resul(i-1,j-1).c3,img_resul(i-1,j-1).c4,img_resul(i-1,j-1).c5]';
-                    vec_ddleft  = [img_resul(i+1,j-1).c1,img_resul(i+1,j-1).c2,img_resul(i+1,j-1).c3,img_resul(i+1,j-1).c4,img_resul(i+1,j-1).c5]';
-
-                    %correlations
-                    cl  = corr(vec_central,vec_left);
-                    cu  =-1; % corr(vec_central,vec_up);
-                    cr  =-1; % corr(vec_central,vec_right);
-                    cd  = corr(vec_central,vec_down);
-                    cdur=-1; % corr(vec_central,vec_duright);
-                    cddr=-1; % corr(vec_central,vec_ddright);
-                    cdul=-1; % corr(vec_central,vec_duleft);
-                    cddl= corr(vec_central,vec_ddleft);
-
-                    %modelo adotado: [anti horario comecando da esquerda]
-                    vector = [cl , cddl , cd , cddr, cr , cdur, cu, cdul];
+                    vector = ComputeVectors(i,j,img_resul,numberLines,numberColumns);
                     vectorN = {'cl' , 'cddl' , 'cd' , 'cddr', 'cr' , 'cdur', 'cu', 'cdul'};
                     [val idx] = max(vector);
                     img_resul(i,j).family = numberRepetitions;
 
-                    %Apontando para o proximo que deve-se
-                    %ir:
+                    %Apontando para o proximo que deve-se ir:
                     contador = contador + 1;
                     i_antigo=[i_antigo i];
                     j_antigo = [j_antigo j];
 
 
-                   if strcmp(vectorN(idx),'cl')
-                        i = i;
-                        j = j-1;
-                        if (numel(i_antigo)>1) && (i == i_antigo(numel(i_antigo)-1)) && (j ==j_antigo(numel(j_antigo)-1))
-                            a=0;
-                        end
-
-                    elseif strcmp(vectorN(idx),'cddl')
-                        i = i+1;
-                        j = j-1;
-                        if (numel(i_antigo)>1) &&(i == i_antigo(numel(i_antigo)-1)) && (j ==j_antigo(numel(j_antigo)-1))
-                            a=0;
-                        end
-
-                    elseif strcmp(vectorN(idx),'cd')
-                        i = i+1;
-                        j = j;
-                        if (numel(i_antigo)>1) &&(i == i_antigo(numel(i_antigo)-1)) && (j ==j_antigo(numel(j_antigo)-1))
-                            a=0;
-                        end
-
-                    elseif strcmp(vectorN(idx),'cddr')
-                        i = i+1;
-                        j = j+1;
-                        if (numel(i_antigo)>1) &&(i == i_antigo(numel(i_antigo)-1)) && (j ==j_antigo(numel(j_antigo)-1))
-                            a=0;
-                        end
-
-                    elseif strcmp(vectorN(idx),'cr')
-                        i = i;
-                        j = j+1;
-                        if (numel(i_antigo)>1) &&(i == i_antigo(numel(i_antigo)-1)) && (j ==j_antigo(numel(j_antigo)-1))
-                            a=0;
-                        end
-
-                    elseif strcmp(vectorN(idx),'cdur')
-                        i = i-1;
-                        j = j+1;
-                        if (numel(i_antigo)>1) &&(i == i_antigo(numel(i_antigo)-1)) && (j ==j_antigo(numel(j_antigo)-1))
-                            a=0;
-                        end
-
-                    elseif strcmp(vectorN(idx),'cu')
-                        i = i-1;
-                        j = j;
-                        if (numel(i_antigo)>1) &&(i == i_antigo(numel(i_antigo)-1)) && (j ==j_antigo(numel(j_antigo)-1))
-                            a=0;
-                        end
-
-                    else strcmp(vectorN(idx),'cdul')
-                        i = i-1;
-                        j = j-1;
-                        if (numel(i_antigo)>1) &&(i == i_antigo(numel(i_antigo)-1)) && (j ==j_antigo(numel(j_antigo)-1))
-                            a=0;
-                        end
-                    end
+                    nextPosition = PointingNextPlace(i,j,i_antigo,j_antigo,vectorN,idx,newposition);
+                    i= nextPosition(1);
+                    j=nextPosition(2);
+                    newposition=nextPosition(3);
 
 
-
-
-
-
-
-                    %quina inferior direita
+                %Quina inferior direita
                 elseif (i== numberLines) && (j==numberColumns)
 
-
-                    vec_central = [img_resul(i,j).c1,img_resul(i,j).c2,img_resul(i,j).c3,img_resul(i,j).c4,img_resul(i,j).c5]';
-                    vec_left    = [img_resul(i,j-1).c1,img_resul(i,j-1).c2,img_resul(i,j-1).c3,img_resul(i,j-1).c4,img_resul(i,j-1).c5]';
-                    vec_up      = [img_resul(i-1,j).c1,img_resul(i-1,j).c2,img_resul(i-1,j).c3,img_resul(i-1,j).c4,img_resul(i-1,j).c5]';
-                    %             vec_right   = [img_resul(i,j+1).c1,img_resul(i,j+1).c2,img_resul(i,j+1).c3,img_resul(i,j+1).c4,img_resul(i,j+1).c5]';
-                    %             vec_down    = [img_resul(i+1,j).c1,img_resul(i+1,j).c2,img_resul(i+1,j).c3,img_resul(i+1,j).c4,img_resul(i+1,j).c5]';
-                    %              vec_duright = [img_resul(i-1,j+1).c1,img_resul(i-1,j+1).c2,img_resul(i-1,j+1).c3,img_resul(i-1,j+1).c4,img_resul(i-1,j+1).c5]';
-                    %             vec_ddright = [img_resul(i+1,j+1).c1,img_resul(i+1,j+1).c2,img_resul(i+1,j+1).c3,img_resul(i+1,j+1).c4,img_resul(i+1,j+1).c5]';
-                    vec_duleft  = [img_resul(i-1,j-1).c1,img_resul(i-1,j-1).c2,img_resul(i-1,j-1).c3,img_resul(i-1,j-1).c4,img_resul(i-1,j-1).c5]';
-                    %              vec_ddleft  = [img_resul(i+1,j-1).c1,img_resul(i+1,j-1).c2,img_resul(i+1,j-1).c3,img_resul(i+1,j-1).c4,img_resul(i+1,j-1).c5]';
-
-                    %correlations
-                    cl  = corr(vec_central,vec_left);
-                    cu  = corr(vec_central,vec_up);
-                    cr  =-1; % corr(vec_central,vec_right);
-                    cd  =-1; % corr(vec_central,vec_down);
-                    cdur=-1; % corr(vec_central,vec_duright);
-                    cddr=-1; % corr(vec_central,vec_ddright);
-                    cdul= corr(vec_central,vec_duleft);
-                    cddl=-1; % corr(vec_central,vec_ddleft);
-
-                    %modelo adotado: [anti horario comecando da esquerda]
-                    vector = [cl , cddl , cd , cddr, cr , cdur, cu, cdul];
+                    vector = ComputeVectors(i,j,img_resul,numberLines,numberColumns);
                     vectorN = {'cl' , 'cddl' , 'cd' , 'cddr', 'cr' , 'cdur', 'cu', 'cdul'};
                     [val idx] = max(vector);
                     img_resul(i,j).family = numberRepetitions;
@@ -807,157 +213,30 @@ for i=1:numberLines
                     j_antigo = [j_antigo j];
 
 
-                    if strcmp(vectorN(idx),'cl')
-                        i = i;
-                        j = j-1;
-                        if (numel(i_antigo)>1) && (i == i_antigo(numel(i_antigo)-1)) && (j ==j_antigo(numel(j_antigo)-1))
-                            a=0;
-                        end
-
-                    elseif strcmp(vectorN(idx),'cddl')
-                        i = i+1;
-                        j = j-1;
-                        if (numel(i_antigo)>1) &&(i == i_antigo(numel(i_antigo)-1)) && (j ==j_antigo(numel(j_antigo)-1))
-                            a=0;
-                        end
-
-                    elseif strcmp(vectorN(idx),'cd')
-                        i = i+1;
-                        j = j;
-                        if (numel(i_antigo)>1) &&(i == i_antigo(numel(i_antigo)-1)) && (j ==j_antigo(numel(j_antigo)-1))
-                            a=0;
-                        end
-
-                    elseif strcmp(vectorN(idx),'cddr')
-                        i = i+1;
-                        j = j+1;
-                        if (numel(i_antigo)>1) &&(i == i_antigo(numel(i_antigo)-1)) && (j ==j_antigo(numel(j_antigo)-1))
-                            a=0;
-                        end
-
-                    elseif strcmp(vectorN(idx),'cr')
-                        i = i;
-                        j = j+1;
-                        if (numel(i_antigo)>1) &&(i == i_antigo(numel(i_antigo)-1)) && (j ==j_antigo(numel(j_antigo)-1))
-                            a=0;
-                        end
-
-                    elseif strcmp(vectorN(idx),'cdur')
-                        i = i-1;
-                        j = j+1;
-                        if (numel(i_antigo)>1) &&(i == i_antigo(numel(i_antigo)-1)) && (j ==j_antigo(numel(j_antigo)-1))
-                            a=0;
-                        end
-
-                    elseif strcmp(vectorN(idx),'cu')
-                        i = i-1;
-                        j = j;
-                        if (numel(i_antigo)>1) &&(i == i_antigo(numel(i_antigo)-1)) && (j ==j_antigo(numel(j_antigo)-1))
-                            a=0;
-                        end
-
-                    else strcmp(vectorN(idx),'cdul')
-                        i = i-1;
-                        j = j-1;
-                        if (numel(i_antigo)>1) &&(i == i_antigo(numel(i_antigo)-1)) && (j ==j_antigo(numel(j_antigo)-1))
-                            a=0;
-                        end
-                    end
+                    nextPosition = PointingNextPlace(i,j,i_antigo,j_antigo,vectorN,idx,newposition);
+                    i= nextPosition(1);
+                    j=nextPosition(2);
+                    newposition=nextPosition(3);
 
 
-                    %quina inferior esquerda
+                %Quina inferior esquerda
                 else (i== numberLines) && (j==1)
 
-
-                    vec_central = [img_resul(i,j).c1,img_resul(i,j).c2,img_resul(i,j).c3,img_resul(i,j).c4,img_resul(i,j).c5]';
-                    %              vec_left    = [img_resul(i,j-1).c1,img_resul(i,j-1).c2,img_resul(i,j-1).c3,img_resul(i,j-1).c4,img_resul(i,j-1).c5]';
-                    vec_up      = [img_resul(i-1,j).c1,img_resul(i-1,j).c2,img_resul(i-1,j).c3,img_resul(i-1,j).c4,img_resul(i-1,j).c5]';
-                    vec_right   = [img_resul(i,j+1).c1,img_resul(i,j+1).c2,img_resul(i,j+1).c3,img_resul(i,j+1).c4,img_resul(i,j+1).c5]';
-                    %             vec_down    = [img_resul(i+1,j).c1,img_resul(i+1,j).c2,img_resul(i+1,j).c3,img_resul(i+1,j).c4,img_resul(i+1,j).c5]';
-                    vec_duright = [img_resul(i-1,j+1).c1,img_resul(i-1,j+1).c2,img_resul(i-1,j+1).c3,img_resul(i-1,j+1).c4,img_resul(i-1,j+1).c5]';
-                    %             vec_ddright = [img_resul(i+1,j+1).c1,img_resul(i+1,j+1).c2,img_resul(i+1,j+1).c3,img_resul(i+1,j+1).c4,img_resul(i+1,j+1).c5]';
-                    %              vec_duleft  = [img_resul(i-1,j-1).c1,img_resul(i-1,j-1).c2,img_resul(i-1,j-1).c3,img_resul(i-1,j-1).c4,img_resul(i-1,j-1).c5]';
-                    %              vec_ddleft  = [img_resul(i+1,j-1).c1,img_resul(i+1,j-1).c2,img_resul(i+1,j-1).c3,img_resul(i+1,j-1).c4,img_resul(i+1,j-1).c5]';
-
-                    %correlations
-                    cl  =-1; % corr(vec_central,vec_left);
-                    cu  = corr(vec_central,vec_up);
-                    cr  = corr(vec_central,vec_right);
-                    cd  =-1; % corr(vec_central,vec_down);
-                    cdur= corr(vec_central,vec_duright);
-                    cddr=-1; % corr(vec_central,vec_ddright);
-                    cdul=-1; % corr(vec_central,vec_duleft);
-                    cddl=-1; % corr(vec_central,vec_ddleft);
-
-                    %modelo adotado: [anti horario comecando da esquerda]
-                    vector = [cl , cddl , cd , cddr, cr , cdur, cu, cdul];
+                    vector = ComputeVectors(i,j,img_resul,numberLines,numberColumns);
                     vectorN = {'cl' , 'cddl' , 'cd' , 'cddr', 'cr' , 'cdur', 'cu', 'cdul'};
                     [val idx] = max(vector);
                     img_resul(i,j).family = numberRepetitions;
 
-                    %Apontando para o proximo que deve-se
-                    %ir:
+                    %Apontando para o proximo que deve-se ir:
                     contador = contador + 1;
                     i_antigo=[i_antigo i];
                     j_antigo = [j_antigo j];
 
 
-                    if strcmp(vectorN(idx),'cl')
-                        i = i;
-                        j = j-1;
-                        if (numel(i_antigo)>1) && (i == i_antigo(numel(i_antigo)-1)) && (j ==j_antigo(numel(j_antigo)-1))
-                            a=0;
-                        end
-
-                    elseif strcmp(vectorN(idx),'cddl')
-                        i = i+1;
-                        j = j-1;
-                        if (numel(i_antigo)>1) &&(i == i_antigo(numel(i_antigo)-1)) && (j ==j_antigo(numel(j_antigo)-1))
-                            a=0;
-                        end
-
-                    elseif strcmp(vectorN(idx),'cd')
-                        i = i+1;
-                        j = j;
-                        if (numel(i_antigo)>1) &&(i == i_antigo(numel(i_antigo)-1)) && (j ==j_antigo(numel(j_antigo)-1))
-                            a=0;
-                        end
-
-                    elseif strcmp(vectorN(idx),'cddr')
-                        i = i+1;
-                        j = j+1;
-                        if (numel(i_antigo)>1) &&(i == i_antigo(numel(i_antigo)-1)) && (j ==j_antigo(numel(j_antigo)-1))
-                            a=0;
-                        end
-
-                    elseif strcmp(vectorN(idx),'cr')
-                        i = i;
-                        j = j+1;
-                        if (numel(i_antigo)>1) &&(i == i_antigo(numel(i_antigo)-1)) && (j ==j_antigo(numel(j_antigo)-1))
-                            a=0;
-                        end
-
-                    elseif strcmp(vectorN(idx),'cdur')
-                        i = i-1;
-                        j = j+1;
-                        if (numel(i_antigo)>1) &&(i == i_antigo(numel(i_antigo)-1)) && (j ==j_antigo(numel(j_antigo)-1))
-                            a=0;
-                        end
-
-                    elseif strcmp(vectorN(idx),'cu')
-                        i = i-1;
-                        j = j;
-                        if (numel(i_antigo)>1) &&(i == i_antigo(numel(i_antigo)-1)) && (j ==j_antigo(numel(j_antigo)-1))
-                            a=0;
-                        end
-
-                    else strcmp(vectorN(idx),'cdul')
-                        i = i-1;
-                        j = j-1;
-                        if (numel(i_antigo)>1) &&(i == i_antigo(numel(i_antigo)-1)) && (j ==j_antigo(numel(j_antigo)-1))
-                            a=0;
-                        end
-                    end
+                    nextPosition = PointingNextPlace(i,j,i_antigo,j_antigo,vectorN,idx,newposition);
+                    i= nextPosition(1);
+                    j=nextPosition(2);
+                    newposition=nextPosition(3);
 
 
 
@@ -965,7 +244,7 @@ for i=1:numberLines
 
             
             else
-                a=0;
+                newposition=0;
             
             end 
             
@@ -978,7 +257,7 @@ end
 
 for i=1:numberLines
     for j=1:numberColumns
-        matriz(i,j) = img_resul(i,j).family;
+        matrizFamilia(i,j) = img_resul(i,j).family;
     end
 end
 matriz
