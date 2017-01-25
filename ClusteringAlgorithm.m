@@ -9,8 +9,8 @@ clear all; clc;
 %numero de linhas e colunas da matriz imagem resultado para ser usada
 %depois.
 
-numberLines = 3;
-numberColumns = 3;
+numberLines = 300;
+numberColumns = 300;
 
 %emulacao das imagens a serem recebidas pelo programa.
 img1 = randn(numberLines,numberColumns);
@@ -43,11 +43,11 @@ debug_todosOsJs = [];
 contador = 0;
 
 %Implementação do algoritmo de Clustering
-for i=1:numberLines
-    for j = 1:numberColumns
+for x_int=1:numberLines
+    for y_int = 1:numberColumns
         
-        i = i;
-        j = j;
+        i = x_int;
+        j = y_int;
         numberRepetitions = numberRepetitions+1;
         debug_todosOsIs = [ debug_todosOsIs i];
         debug_todosOsJs = [ debug_todosOsJs j];
@@ -63,7 +63,7 @@ for i=1:numberLines
             %Checking if the current position has already been setted with
             %a "family" number. i.e: if img_result(i,j).family = 2 ; then
             %skip everything and go to the next loop
-            if (img_resul(i,j).family == -1)
+%             if (img_resul(i,j).family == -1)
               
                 %Dentro do plano (nem na primeira ou ultima linha e coluna)
                 if (i-1 >= 1) && ( i+1 <= numberLines ) && (j-1 >= 1) && ( j+1 <= numberColumns )
@@ -82,6 +82,19 @@ for i=1:numberLines
                     i= nextPosition(1);
                     j=nextPosition(2);
                     newposition=nextPosition(3);
+                    
+                    %se a proxima posicao ja tiver sido marcada com um
+                    %family number, entao a posicao atual deve ser marcada
+                    %com o valor da familia da proxima posicao e deve-se
+                    %avancar. Tudo isso uma vez que estejamos indo a um
+                    %numero novo, pois se for a posicao antiga, nao nos
+                    %interessa.
+                    if(newposition ==1) && (img_resul(nextPosition(1),nextPosition(2)).family ~= -1)
+                        img_resul(i_antigo(numel(i_antigo)),j_antigo(numel(j_antigo))).family = img_resul(nextPosition(1),nextPosition(2)).family;
+                        newposition =0;
+                    end
+                    
+                    
 
                     
                 %Primeira Coluna e nao seja quina.
@@ -100,8 +113,13 @@ for i=1:numberLines
                     nextPosition = PointingNextPlace(i,j,i_antigo,j_antigo,vectorN,idx,newposition);
                     i= nextPosition(1);
                     j=nextPosition(2);
+                    
                     newposition=nextPosition(3);
-
+                    
+                    if(newposition ==1) && (img_resul(nextPosition(1),nextPosition(2)).family ~= -1)
+                        img_resul(i_antigo(numel(i_antigo)),j_antigo(numel(j_antigo))).family = img_resul(nextPosition(1),nextPosition(2)).family;
+                        newposition =0;
+                    end
 
                 %Topo  e nao seja quina.
                 elseif (i== 1)  && (j-1>=1) && (j+1 <= numberColumns)
@@ -120,7 +138,11 @@ for i=1:numberLines
                     i= nextPosition(1);
                     j=nextPosition(2);
                     newposition=nextPosition(3);
-
+                    
+                    if(newposition ==1) && (img_resul(nextPosition(1),nextPosition(2)).family ~= -1)
+                        img_resul(i_antigo(numel(i_antigo)),j_antigo(numel(j_antigo))).family = img_resul(nextPosition(1),nextPosition(2)).family;
+                        newposition =0;
+                    end
                     
                 %Ultima Coluna nao seja quina.
                 elseif (i>= 2) && (i< numberLines) && (j== numberColumns)
@@ -139,6 +161,11 @@ for i=1:numberLines
                     i= nextPosition(1);
                     j=nextPosition(2);
                     newposition=nextPosition(3);
+                    
+                    if(newposition ==1) && (img_resul(nextPosition(1),nextPosition(2)).family ~= -1)
+                        img_resul(i_antigo(numel(i_antigo)),j_antigo(numel(j_antigo))).family = img_resul(nextPosition(1),nextPosition(2)).family;
+                        newposition =0;
+                    end
 
 
                 %Ultima Linha e nao seja quina.
@@ -159,6 +186,11 @@ for i=1:numberLines
                     i= nextPosition(1);
                     j=nextPosition(2);
                     newposition=nextPosition(3);
+                    
+                    if(newposition ==1) && (img_resul(nextPosition(1),nextPosition(2)).family ~= -1)
+                        img_resul(i_antigo(numel(i_antigo)),j_antigo(numel(j_antigo))).family = img_resul(nextPosition(1),nextPosition(2)).family;
+                        newposition =0;
+                    end
 
                 %Topo  e seja quina esquerda.
                 elseif (i== 1) && (j==1)
@@ -177,6 +209,11 @@ for i=1:numberLines
                     i= nextPosition(1);
                     j=nextPosition(2);
                     newposition=nextPosition(3);
+                    
+                    if(newposition ==1) && (img_resul(nextPosition(1),nextPosition(2)).family ~= -1)
+                        img_resul(i_antigo(numel(i_antigo)),j_antigo(numel(j_antigo))).family = img_resul(nextPosition(1),nextPosition(2)).family;
+                        newposition =0;
+                    end
 
                 %Quina superior direita
                 elseif (i== 1) && (j==numberColumns)
@@ -196,7 +233,11 @@ for i=1:numberLines
                     i= nextPosition(1);
                     j=nextPosition(2);
                     newposition=nextPosition(3);
-
+                    
+                    if(newposition ==1) && (img_resul(nextPosition(1),nextPosition(2)).family ~= -1)
+                        img_resul(i_antigo(numel(i_antigo)),j_antigo(numel(j_antigo))).family = img_resul(nextPosition(1),nextPosition(2)).family;
+                        newposition =0;
+                    end
 
                 %Quina inferior direita
                 elseif (i== numberLines) && (j==numberColumns)
@@ -217,6 +258,11 @@ for i=1:numberLines
                     i= nextPosition(1);
                     j=nextPosition(2);
                     newposition=nextPosition(3);
+                    
+                    if(newposition ==1) && (img_resul(nextPosition(1),nextPosition(2)).family ~= -1)
+                        img_resul(i_antigo(numel(i_antigo)),j_antigo(numel(j_antigo))).family = img_resul(nextPosition(1),nextPosition(2)).family;
+                        newposition =0;
+                    end
 
 
                 %Quina inferior esquerda
@@ -237,16 +283,21 @@ for i=1:numberLines
                     i= nextPosition(1);
                     j=nextPosition(2);
                     newposition=nextPosition(3);
+                    
+                    if(newposition ==1) && (img_resul(nextPosition(1),nextPosition(2)).family ~= -1)
+                        img_resul(i_antigo(numel(i_antigo)),j_antigo(numel(j_antigo))).family = img_resul(nextPosition(1),nextPosition(2)).family;
+                        newposition =0;
+                    end
 
 
 
                 end
 
             
-            else
-                newposition=0;
-            
-            end 
+%             else
+%                 newposition=0;
+%             
+%             end 
             
         end
         
@@ -260,4 +311,4 @@ for i=1:numberLines
         matrizFamilia(i,j) = img_resul(i,j).family;
     end
 end
-matriz
+pcolor(matrizFamilia)
