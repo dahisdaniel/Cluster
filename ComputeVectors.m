@@ -4,6 +4,7 @@ function output = ComputeVectors(i,j,img_resul,numberLines,numberColumns)
 
 %CASE 1 : Position inside the plane (not on the borders)
 if (i-1 >= 1) && ( i+1 <= numberLines ) && (j-1 >= 1) && ( j+1 <= numberColumns )
+    
     vec_central = [img_resul(i,j).c1,img_resul(i,j).c2,img_resul(i,j).c3,img_resul(i,j).c4,img_resul(i,j).c5]';
     vec_left    = [img_resul(i,j-1).c1,img_resul(i,j-1).c2,img_resul(i,j-1).c3,img_resul(i,j-1).c4,img_resul(i,j-1).c5]';
     vec_up      = [img_resul(i-1,j).c1,img_resul(i-1,j).c2,img_resul(i-1,j).c3,img_resul(i-1,j).c4,img_resul(i-1,j).c5]';
@@ -14,22 +15,23 @@ if (i-1 >= 1) && ( i+1 <= numberLines ) && (j-1 >= 1) && ( j+1 <= numberColumns 
     vec_duleft  = [img_resul(i-1,j-1).c1,img_resul(i-1,j-1).c2,img_resul(i-1,j-1).c3,img_resul(i-1,j-1).c4,img_resul(i-1,j-1).c5]';
     vec_ddleft  = [img_resul(i+1,j-1).c1,img_resul(i+1,j-1).c2,img_resul(i+1,j-1).c3,img_resul(i+1,j-1).c4,img_resul(i+1,j-1).c5]';
 
-    %correlations
-    cl  = abs(corr(vec_central,vec_left));
-    cu  = abs(corr(vec_central,vec_up));
-    cr  = abs(corr(vec_central,vec_right));
-    cd  = abs(corr(vec_central,vec_down));
-    cdur= abs(corr(vec_central,vec_duright));
-    cddr= abs(corr(vec_central,vec_ddright));
-    cdul= abs(corr(vec_central,vec_duleft));
-    cddl= abs(corr(vec_central,vec_ddleft));  
+    rangeVC = range(vec_central);
 
+    %correlations
+    cl  = (corr(vec_central,vec_left));
+    cu  = (corr(vec_central,vec_up));
+    cr  = (corr(vec_central,vec_right));
+    cd  = (corr(vec_central,vec_down));
+    cdur= (corr(vec_central,vec_duright));
+    cddr= (corr(vec_central,vec_ddright));
+    cdul= (corr(vec_central,vec_duleft));
+    cddl= (corr(vec_central,vec_ddleft));  
+    
     output = [cl , cddl , cd , cddr, cr , cdur, cu, cdul];
 
 
 %CASE 2 : Position on the 1st Column but not on top or down
 elseif (i-1 >= 1) && (i<numberLines) && (j==1)
-
 
     vec_central = [img_resul(i,j).c1,img_resul(i,j).c2,img_resul(i,j).c3,img_resul(i,j).c4,img_resul(i,j).c5]';
     %             vec_left    = [img_resul(i,j-1).c1,img_resul(i,j-1).c2,img_resul(i,j-1).c3,img_resul(i,j-1).c4,img_resul(i,j-1).c5]';
@@ -40,17 +42,17 @@ elseif (i-1 >= 1) && (i<numberLines) && (j==1)
     vec_ddright = [img_resul(i+1,j+1).c1,img_resul(i+1,j+1).c2,img_resul(i+1,j+1).c3,img_resul(i+1,j+1).c4,img_resul(i+1,j+1).c5]';
     %             vec_duleft  = [img_resul(i-1,j-1).c1,img_resul(i-1,j-1).c2,img_resul(i-1,j-1).c3,img_resul(i-1,j-1).c4,img_resul(i-1,j-1).c5]';
     %             vec_ddleft  = [img_resul(i+1,j-1).c1,img_resul(i+1,j-1).c2,img_resul(i+1,j-1).c3,img_resul(i+1,j-1).c4,img_resul(i+1,j-1).c5]';
-
+    
     %correlations
-    cl  = 0; %corr(vec_central,vec_left);
-    cu  = abs(corr(vec_central,vec_up));
-    cr  = abs(corr(vec_central,vec_right));
-    cd  = abs(corr(vec_central,vec_down));
-    cdur= abs(corr(vec_central,vec_duright));
-    cddr= abs(corr(vec_central,vec_ddright));
-    cdul= 0; %corr(vec_central,vec_duleft);
-    cddl= 0; % corr(vec_central,vec_ddleft);
-
+    cl  = -1; %corr(vec_central,vec_left);
+    cu  = (corr(vec_central,vec_up));
+    cr  = (corr(vec_central,vec_right));
+    cd  = (corr(vec_central,vec_down));
+    cdur= (corr(vec_central,vec_duright));
+    cddr= (corr(vec_central,vec_ddright));
+    cdul= -1; %corr(vec_central,vec_duleft);
+    cddl= -1; % corr(vec_central,vec_ddleft);
+    
 
     output = [cl , cddl , cd , cddr, cr , cdur, cu, cdul];
 
@@ -68,16 +70,21 @@ elseif (i== 1)  && (j-1>=1) && (j+1 <= numberColumns)
     vec_ddright = [img_resul(i+1,j+1).c1,img_resul(i+1,j+1).c2,img_resul(i+1,j+1).c3,img_resul(i+1,j+1).c4,img_resul(i+1,j+1).c5]';
     %             vec_duleft  = [img_resul(i-1,j-1).c1,img_resul(i-1,j-1).c2,img_resul(i-1,j-1).c3,img_resul(i-1,j-1).c4,img_resul(i-1,j-1).c5]';
     vec_ddleft  = [img_resul(i+1,j-1).c1,img_resul(i+1,j-1).c2,img_resul(i+1,j-1).c3,img_resul(i+1,j-1).c4,img_resul(i+1,j-1).c5]';
-
+      
+    
+    
     %correlations
-    cl  = abs(corr(vec_central,vec_left));
-    cu  =0; % corr(vec_central,vec_up);
-    cr  = abs(corr(vec_central,vec_right));
-    cd  = abs(corr(vec_central,vec_down));
-    cdur=0; % corr(vec_central,vec_duright);
-    cddr= abs(corr(vec_central,vec_ddright));
-    cdul=0; % corr(vec_central,vec_duleft);
-    cddl= abs(corr(vec_central,vec_ddleft));
+    cl  = (corr(vec_central,vec_left));
+    cu  = -1; % corr(vec_central,vec_up);
+    cr  = (corr(vec_central,vec_right));
+    cd  = (corr(vec_central,vec_down));
+    cdur= -1; % corr(vec_central,vec_duright);
+    cddr= (corr(vec_central,vec_ddright));
+    cdul= -1; % corr(vec_central,vec_duleft);
+    cddl= (corr(vec_central,vec_ddleft));
+    
+   
+    
     output = [cl , cddl , cd , cddr, cr , cdur, cu, cdul];
 
 
@@ -96,16 +103,17 @@ elseif (i>= 2) && (i< numberLines) && (j== numberColumns)
     vec_duleft  = [img_resul(i-1,j-1).c1,img_resul(i-1,j-1).c2,img_resul(i-1,j-1).c3,img_resul(i-1,j-1).c4,img_resul(i-1,j-1).c5]';
     vec_ddleft  = [img_resul(i+1,j-1).c1,img_resul(i+1,j-1).c2,img_resul(i+1,j-1).c3,img_resul(i+1,j-1).c4,img_resul(i+1,j-1).c5]';
 
+    
     %correlations
-    cl  = abs(corr(vec_central,vec_left));
-    cu  = abs(corr(vec_central,vec_up));
-    cr  = 0; % corr(vec_central,vec_right);
-    cd  = abs(corr(vec_central,vec_down));
-    cdur= 0; % corr(vec_central,vec_duright);
-    cddr= 0; % corr(vec_central,vec_ddright);
-    cdul= abs(corr(vec_central,vec_duleft));
-    cddl= abs(corr(vec_central,vec_ddleft));
-
+    cl  = (corr(vec_central,vec_left));
+    cu  = (corr(vec_central,vec_up));
+    cr  = -1; % corr(vec_central,vec_right);
+    cd  = (corr(vec_central,vec_down));
+    cdur= -1; % corr(vec_central,vec_duright);
+    cddr= -1; % corr(vec_central,vec_ddright);
+    cdul= (corr(vec_central,vec_duleft));
+    cddl= (corr(vec_central,vec_ddleft));
+   
     output = [cl , cddl , cd , cddr, cr , cdur, cu, cdul];
 
     
@@ -122,20 +130,19 @@ elseif (i == numberLines)  && (j-1>=1) && (j < numberColumns)
     %             vec_ddright = [img_resul(i+1,j+1).c1,img_resul(i+1,j+1).c2,img_resul(i+1,j+1).c3,img_resul(i+1,j+1).c4,img_resul(i+1,j+1).c5]';
     vec_duleft  = [img_resul(i-1,j-1).c1,img_resul(i-1,j-1).c2,img_resul(i-1,j-1).c3,img_resul(i-1,j-1).c4,img_resul(i-1,j-1).c5]';
     %             vec_ddleft  = [img_resul(i+1,j-1).c1,img_resul(i+1,j-1).c2,img_resul(i+1,j-1).c3,img_resul(i+1,j-1).c4,img_resul(i+1,j-1).c5]';
-
+    
     %correlations
-    cl  = abs(corr(vec_central,vec_left));
-    cu  = abs(corr(vec_central,vec_up));
-    cr  = abs(corr(vec_central,vec_right));
-    cd  = 0; %corr(vec_central,vec_down);
-    cdur= abs(corr(vec_central,vec_duright));
-    cddr= 0; % corr(vec_central,vec_ddright);
-    cdul= abs(corr(vec_central,vec_duleft));
-    cddl= 0; % corr(vec_central,vec_ddleft);
-
+    cl  = (corr(vec_central,vec_left));
+    cu  = (corr(vec_central,vec_up));
+    cr  = (corr(vec_central,vec_right));
+    cd  = -1; %corr(vec_central,vec_down);
+    cdur= (corr(vec_central,vec_duright));
+    cddr= -1; % corr(vec_central,vec_ddright);
+    cdul= (corr(vec_central,vec_duleft));
+    cddl= -1; % corr(vec_central,vec_ddleft);
+    
     output = [cl , cddl , cd , cddr, cr , cdur, cu, cdul];
-
-
+    
 %CASE 6 : Position on the first position (1st line and 1st column).
 elseif (i== 1) && (j==1)
 
@@ -149,18 +156,17 @@ elseif (i== 1) && (j==1)
     vec_ddright = [img_resul(i+1,j+1).c1,img_resul(i+1,j+1).c2,img_resul(i+1,j+1).c3,img_resul(i+1,j+1).c4,img_resul(i+1,j+1).c5]';
     %             vec_duleft  = [img_resul(i-1,j-1).c1,img_resul(i-1,j-1).c2,img_resul(i-1,j-1).c3,img_resul(i-1,j-1).c4,img_resul(i-1,j-1).c5]';
     %             vec_ddleft  = [img_resul(i+1,j-1).c1,img_resul(i+1,j-1).c2,img_resul(i+1,j-1).c3,img_resul(i+1,j-1).c4,img_resul(i+1,j-1).c5]';
-
+   
     %correlations
-    cl  = 0; % corr(vec_central,vec_left);
-    cu  = 0; % corr(vec_central,vec_up);
-    cr  = abs(corr(vec_central,vec_right));
-    cd  = abs(corr(vec_central,vec_down));
-    cdur= 0; % corr(vec_central,vec_duright);
-    cddr= abs(corr(vec_central,vec_ddright));
-    cdul= 0; % corr(vec_central,vec_duleft);
-    cddl= 0; % corr(vec_central,vec_ddleft);
-    
-    
+    cl  = -1; % corr(vec_central,vec_left);
+    cu  = -1; % corr(vec_central,vec_up);
+    cr  = (corr(vec_central,vec_right));
+    cd  = (corr(vec_central,vec_down));
+    cdur= -1; % corr(vec_central,vec_duright);
+    cddr= (corr(vec_central,vec_ddright));
+    cdul= -1; % corr(vec_central,vec_duleft);
+    cddl= -1; % corr(vec_central,vec_ddleft);
+
     output = [cl , cddl , cd , cddr, cr , cdur, cu, cdul];
 
 
@@ -179,17 +185,18 @@ elseif (i== 1) && (j==numberColumns)
     %             vec_ddright = [img_resul(i+1,j+1).c1,img_resul(i+1,j+1).c2,img_resul(i+1,j+1).c3,img_resul(i+1,j+1).c4,img_resul(i+1,j+1).c5]';
     %             vec_duleft  = [img_resul(i-1,j-1).c1,img_resul(i-1,j-1).c2,img_resul(i-1,j-1).c3,img_resul(i-1,j-1).c4,img_resul(i-1,j-1).c5]';
     vec_ddleft  = [img_resul(i+1,j-1).c1,img_resul(i+1,j-1).c2,img_resul(i+1,j-1).c3,img_resul(i+1,j-1).c4,img_resul(i+1,j-1).c5]';
-
+    
     %correlations
-    cl  = abs(corr(vec_central,vec_left));
-    cu  = 0; % corr(vec_central,vec_up);
-    cr  = 0; % corr(vec_central,vec_right);
-    cd  = abs(corr(vec_central,vec_down));
-    cdur= 0; % corr(vec_central,vec_duright);
-    cddr= 0; % corr(vec_central,vec_ddright);
-    cdul= 0; % corr(vec_central,vec_duleft);
-    cddl= abs(corr(vec_central,vec_ddleft));
-
+    cl  = (corr(vec_central,vec_left));
+    cu  = -1; % corr(vec_central,vec_up);
+    cr  = -1; % corr(vec_central,vec_right);
+    cd  = (corr(vec_central,vec_down));
+    cdur= -1; % corr(vec_central,vec_duright);
+    cddr= -1; % corr(vec_central,vec_ddright);
+    cdul= -1; % corr(vec_central,vec_duleft);
+    cddl= (corr(vec_central,vec_ddleft));
+  
+    
     output = [cl , cddl , cd , cddr, cr , cdur, cu, cdul];
 
 
@@ -206,17 +213,17 @@ elseif (i== numberLines) && (j==numberColumns)
     %             vec_ddright = [img_resul(i+1,j+1).c1,img_resul(i+1,j+1).c2,img_resul(i+1,j+1).c3,img_resul(i+1,j+1).c4,img_resul(i+1,j+1).c5]';
     vec_duleft  = [img_resul(i-1,j-1).c1,img_resul(i-1,j-1).c2,img_resul(i-1,j-1).c3,img_resul(i-1,j-1).c4,img_resul(i-1,j-1).c5]';
     %              vec_ddleft  = [img_resul(i+1,j-1).c1,img_resul(i+1,j-1).c2,img_resul(i+1,j-1).c3,img_resul(i+1,j-1).c4,img_resul(i+1,j-1).c5]';
-
+    
     %correlations
-    cl  = abs(corr(vec_central,vec_left));
-    cu  = abs(corr(vec_central,vec_up));
-    cr  = 0; % corr(vec_central,vec_right);
-    cd  = 0; % corr(vec_central,vec_down);
-    cdur= 0; % corr(vec_central,vec_duright);
-    cddr= 0; % corr(vec_central,vec_ddright);
-    cdul= abs(corr(vec_central,vec_duleft));
+    cl  = (corr(vec_central,vec_left));
+    cu  = (corr(vec_central,vec_up));
+    cr  = -1; % corr(vec_central,vec_right);
+    cd  = -1; % corr(vec_central,vec_down);
+    cdur= -1; % corr(vec_central,vec_duright);
+    cddr= -1; % corr(vec_central,vec_ddright);
+    cdul= (corr(vec_central,vec_duleft));
     cddl=-1; % corr(vec_central,vec_ddleft);
-
+    
     output = [cl , cddl , cd , cddr, cr , cdur, cu, cdul];
 
 
@@ -233,17 +240,20 @@ else (i== numberLines) && (j==1)
     %             vec_ddright = [img_resul(i+1,j+1).c1,img_resul(i+1,j+1).c2,img_resul(i+1,j+1).c3,img_resul(i+1,j+1).c4,img_resul(i+1,j+1).c5]';
     %              vec_duleft  = [img_resul(i-1,j-1).c1,img_resul(i-1,j-1).c2,img_resul(i-1,j-1).c3,img_resul(i-1,j-1).c4,img_resul(i-1,j-1).c5]';
     %              vec_ddleft  = [img_resul(i+1,j-1).c1,img_resul(i+1,j-1).c2,img_resul(i+1,j-1).c3,img_resul(i+1,j-1).c4,img_resul(i+1,j-1).c5]';
-
+    
+    
+    
     %correlations
-    cl  = 0; % corr(vec_central,vec_left);
-    cu  = abs(corr(vec_central,vec_up));
-    cr  = abs(corr(vec_central,vec_right));
-    cd  = 0; % corr(vec_central,vec_down);
-    cdur= abs(corr(vec_central,vec_duright));
-    cddr= 0; % corr(vec_central,vec_ddright);
-    cdul= 0; % corr(vec_central,vec_duleft);
-    cddl= 0; % corr(vec_central,vec_ddleft);
-
+    cl  = -1; % corr(vec_central,vec_left);
+    cu  = (corr(vec_central,vec_up));
+    cr  = (corr(vec_central,vec_right));
+    cd  = -1; % corr(vec_central,vec_down);
+    cdur= (corr(vec_central,vec_duright));
+    cddr= -1; % corr(vec_central,vec_ddright);
+    cdul= -1; % corr(vec_central,vec_duleft);
+    cddl= -1; % corr(vec_central,vec_ddleft);
+    
+    
     output = [cl , cddl , cd , cddr, cr , cdur, cu, cdul];
 
 
